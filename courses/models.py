@@ -1,6 +1,7 @@
 from django.db import models
+import helpers
 
-
+helpers.cloudinary_init()
 class AccessRequirement(models.TextChoices):
     ANYONE = "any", "Anyone"
     EMAIL_REQUIRED = "email", "Email required"
