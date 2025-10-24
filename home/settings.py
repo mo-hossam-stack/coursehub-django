@@ -2,7 +2,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+LOCAL_CDN = BASE_DIR / "local-cdn"
 SECRET_KEY = 'django-insecure-vu#zo-kt-@)=#u-q)=*kl0gt%k!aky#d3e##e2qx9i3&@uk*u5'
 
 DEBUG = True
@@ -99,6 +99,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+#nginx
+MEDIA_URL = "media/"
+MEDIA_ROOT = LOCAL_CDN / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
