@@ -36,7 +36,7 @@ class Course(models.Model):
     def is_published(self):
         return self.status == PublishStatus.PUBLISHED
     @property
-    def image_admin(self):
+    def image_admin_url(self):
         if not self.image:return ""
         image_options = {
             "width" : 200
@@ -54,3 +54,36 @@ class Course(models.Model):
         url = self.image.build_url(**image_options)
         return url
     
+    def get_image_detail(self, as_html=False, width=500):
+        if not self.image:return ""
+        image_options = {
+            "width" : width
+        }
+        if as_html:
+            return self.image.image(**image_options)
+        url = self.image.build_url(**image_options)
+        return url
+    """
+    -lessons
+        - title 
+        - description
+        - video
+        - status : published, comming soon, draft
+    """
+# Lesson.objects.all() # lesson queryset -> all rows
+# Lesson.objects.first()
+# course_obj = Course.objects.first()
+# course_qs = Course.objects.filter(id=course_obj.id)
+# Lesson.objects.filter(course__id=course_obj.id)
+# course_obj.lesson_set.all()
+# lesson_obj = Lesson.objects.first()
+# ne_course_obj = lesson_obj.course
+# ne_course_lessons = ne_course_obj.lesson_set.all()
+# lesson_obj.course_id
+# course_obj.lesson_set.all().order_by("-title")
+class Lesson(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    # course_id 
+    
+    title = models.CharField(max_length=120)
+    description = models.TextField(blank=True, null=True)

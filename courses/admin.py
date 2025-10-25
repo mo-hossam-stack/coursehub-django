@@ -10,7 +10,7 @@ class CourseAdmin(admin.ModelAdmin):
     readonly_fields = [ 'display_image']
 
     def display_image(self, obj, *args, **kwargs):
-        url = obj.image_admin
+        url = obj.image_admin_url
         if not url:
             return "No Image"
         return format_html(f"<img src='{url}' width='200' style='border-radius:8px;'/>")
