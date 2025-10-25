@@ -17,7 +17,8 @@ def handle_upload(instance, filename):
 class Course(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
-    
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     #image = models.ImageField(upload_to=handle_upload, blank=True, null=True)
     image = CloudinaryField("image",null=True)
     access = models.CharField(
@@ -84,6 +85,20 @@ class Course(models.Model):
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     # course_id 
-    
+
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
+    thumbnail = CloudinaryField("image", blank= True,null=True)
+    video = CloudinaryField("video", blank= True, null=True,resource_type='video')
+    can_preview = models.BooleanField(default=False, help_text="If user does not have access to course, can they see this?")
+    status = models.CharField(
+        max_length=10, 
+        choices=PublishStatus.choices,
+        default=PublishStatus.PUBLISHED
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    order = models.IntegerField(default=0)
+    class Meta:
+        ordering = ['order', '-updated']
+    

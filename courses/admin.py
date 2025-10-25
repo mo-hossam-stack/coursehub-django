@@ -1,9 +1,14 @@
 from django.contrib import admin
-from .models import Course
+from .models import Course,Lesson
 from django.utils.html import format_html
 
+class lessonInline(admin.StackedInline):
+    model = Lesson
+    extra = 0
+    readonly_fields = ['updated']
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
+    inlines = [lessonInline]
     list_display = ['title', 'status', 'access']
     list_filter = ['status', 'access']
     fields = [ 'title', 'description', 'status', 'image', 'access', 'display_image']
