@@ -5,7 +5,7 @@ from django.utils.html import format_html
 class lessonInline(admin.StackedInline):
     model = Lesson
     extra = 0
-    readonly_fields = ['updated']
+    readonly_fields = ['updated', 'public_id']
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     inlines = [lessonInline]
