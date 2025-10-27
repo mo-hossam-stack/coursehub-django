@@ -83,32 +83,26 @@ class Course(models.Model):
         return self.status == PublishStatus.PUBLISHED
     @property
     def image_admin_url(self):
-        if not self.image:return ""
-        image_options = {
-            "width" : 200
-        }
-        url = self.image.build_url(**image_options)
-        return url
+        return helpers.get_cloudinary_image_object(
+            self, field_name="image",
+            as_html=False,
+            width=200
+        )
     
     def get_image_thumbnail(self, as_html=False, width=500):
-        if not self.image:return ""
-        image_options = {
-            "width" : width
-        }
-        if as_html:
-            return self.image.image(**image_options)
-        url = self.image.build_url(**image_options)
-        return url
+        return helpers.get_cloudinary_image_object(
+            self, field_name="image",
+            as_html=as_html,
+            width=width
+        )
     
     def get_image_detail(self, as_html=False, width=500):
-        if not self.image:return ""
-        image_options = {
-            "width" : width
-        }
-        if as_html:
-            return self.image.image(**image_options)
-        url = self.image.build_url(**image_options)
-        return url
+        return helpers.get_cloudinary_image_object(
+            self, field_name="image",
+            as_html=as_html,
+            width=width
+        )
+    
     def save(self, *args, **kwargs):
         # before save
         if self.public_id == "" or self.public_id is None:
