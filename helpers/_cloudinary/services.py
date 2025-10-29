@@ -23,3 +23,29 @@ def get_cloudinary_image_object(instance,
           return image_object.image(**image_options)
     url = image_object.build_url(**image_options)
     return url
+
+def get_cloudinary_video_object(instance, 
+                                field_name="video",
+                                as_html=False,
+                                width=None,
+                                height=None,
+                                sign_url=True, # for private videos
+                                fetch_format = "auto",
+                                quality = "auto",
+                                controls=True,
+                                autoplay=True,
+                                ):
+    if not hasattr(instance, field_name):
+         return ""
+    video_object = getattr(instance, field_name)
+    if not video_object:
+        return ""
+    video_options = {
+        "width": width
+    }
+    if format is not None:
+        video_options['format'] = format
+    if as_html:
+          return video_object.video(**video_options)
+    url = video_object.build_url(**video_options)
+    return url
