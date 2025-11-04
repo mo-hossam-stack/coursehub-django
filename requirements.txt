@@ -4,3 +4,4 @@ cloudinary
 python-decouple
 django-htmx
 mysqlclient
+django-tailwind[reload]
