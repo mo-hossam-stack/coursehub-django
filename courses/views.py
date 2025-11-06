@@ -47,8 +47,10 @@ def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs)
         request.session['next_url'] = request.path
         return render(request, "courses/email-required.html", {})
     # template_name = "courses/purchase-required.html"
-    template_name = "courses/lesson-coming-soon.html"
     """
+    # is the video property has no video in there so it will be coming soon
+    template_name = "courses/lesson-coming-soon.html"
+    
     context = {
         "object": lesson_obj
     }
@@ -58,7 +60,7 @@ def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs)
         Video is available
         go forward
         """
-        template_name = "courses/lesson.html"
+        template_name = "courses/lesson.html" # if its acc has a video available
         video_embed_html = helpers.get_cloudinary_video_object(
             lesson_obj, 
             field_name='video',
