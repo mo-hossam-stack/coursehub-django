@@ -31,20 +31,24 @@ def course_detail_view(request, course_id=None, *args, **kwarg):
 
 
 def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs):
-    print(course_id, lesson_id)
+    #print(course_id, lesson_id)
     lesson_obj = services.get_lesson_detail(
         course_id=course_id,
         lesson_id=lesson_id
     )
     if lesson_obj is None:
         raise Http404
+    """
+    comment this part for local issue till now
     email_id_exists = request.session.get('email_id')
+    
     if lesson_obj.requires_email and not email_id_exists:
         print(request.path)
         request.session['next_url'] = request.path
         return render(request, "courses/email-required.html", {})
     # template_name = "courses/purchase-required.html"
     template_name = "courses/lesson-coming-soon.html"
+    """
     context = {
         "object": lesson_obj
     }
