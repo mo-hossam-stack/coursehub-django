@@ -5,13 +5,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 LOCAL_CDN = BASE_DIR / "local-cdn"
 TEMPLATE_DIR = BASE_DIR / "templates"
-SECRET_KEY = 'django-insecure-vu#zo-kt-@)=#u-q)=*kl0gt%k!aky#d3e##e2qx9i3&@uk*u5'
+SECRET_KEY = config('SECRET_KEY')
 
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in config('ALLOWED_HOSTS', default='').split(',')
+    if host.strip()
+]
 
-
+TAILWIND_APP_NAME = "theme"
 # Application definition
 
 INSTALLED_APPS = [
@@ -23,6 +27,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'courses',
     'django_htmx',
+    "tailwind",
+    "theme",
 ]
 
 MIDDLEWARE = [
@@ -33,6 +39,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',  # ← أضف هذا
 ]
 
 ROOT_URLCONF = 'home.urls'
