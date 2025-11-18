@@ -20,6 +20,7 @@ TAILWIND_APP_NAME = "theme"
 
 # default backend
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_ADDRESS= config("EMAIL_ADDRESS", cast=str, default=None)
 EMAIL_HOST = config("EMAIL_HOST", cast=str, default=None)
 EMAIL_PORT = config("EMAIL_PORT", cast=str, default='587')
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", cast=str, default=None)
