@@ -33,7 +33,7 @@ This project implements a **full-featured course platform** that supports:
   - `Draft`
 - Lessons:
   - Title, Description, Video, and Status
-
+#curr working on
 ### ✉️ Email Verification Flow
 Short-lived email verification system for temporary access:
 - Collect user email
