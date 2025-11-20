@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from emails.forms import EmailForm
 from django.conf import settings
-from emails.models import Email
+from emails.models import Email , EmailVerificationEvent
 EMAIL_ADDRESS = settings.EMAIL_ADDRESS
 
 def home_view(request, *args, **kwargs):
@@ -15,7 +15,12 @@ def home_view(request, *args, **kwargs):
     }
     if form.is_valid():
         email_val = form.cleaned_data.get("email")
-        obj = form.save()
+        email_obj , created = Email.objects.get_or_create(email=email_val)
+        #obj = form.save()
+        obj = EmailVerificationEvent.objects.create(
+            parent = email_obj,
+            email=email_val
+            )
         email_obj, created = Email.objects.get_or_create(email=email_val)
         context['message'] = f"Succcess! Check your email for verification from {EMAIL_ADDRESS}"
         context['form'] = EmailForm()  # reset the form
