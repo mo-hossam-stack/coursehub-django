@@ -11,9 +11,10 @@ def verify_email(email):
 def get_verification_email_message(verification_instance, as_html=False):
     if not isinstance(verification_instance, EmailVerificationEvent):
         return None
+    verify_link = verification_instance.get_link()
     if as_html:
-        return f"<h1>Please verify your email by clicking <a href='{verification_instance.id}'>here</a></h1>"
-    return f"{verification_instance.id}"
+        return f"<a href='{verify_link}'>Click here to verify your email</a>"
+    return f"Verify your email by clicking on the following link: {verify_link}"
     
     
 def start_verification_event(email):

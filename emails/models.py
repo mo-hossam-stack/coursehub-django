@@ -6,6 +6,7 @@ from django.db import models
 class Email(models.Model):
     email = models.EmailField(unique=True)
     active = models.BooleanField(default=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 
 
@@ -29,3 +30,5 @@ class EmailVerificationEvent(models.Model):
         null=True
     )
     timestamp = models.DateTimeField(auto_now_add=True)
+    def get_link(self):
+        return f"{setting.BASE_URL}/verify-email/{self.token}/"

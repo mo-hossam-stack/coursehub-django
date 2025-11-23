@@ -16,6 +16,7 @@ ALLOWED_HOSTS = [
 ]
 
 TAILWIND_APP_NAME = "theme"
+BASE_URL = config("BASE_URL", default="http://127.0.0.1:8000")
 # Application definition
 
 # default backend
