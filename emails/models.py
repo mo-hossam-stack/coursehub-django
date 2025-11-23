@@ -31,4 +31,4 @@ class EmailVerificationEvent(models.Model):
     )
     timestamp = models.DateTimeField(auto_now_add=True)
     def get_link(self):
-        return f"{setting.BASE_URL}/verify-email/{self.token}/"
+        return f"{settings.BASE_URL}/verify-email/{self.token}/"
