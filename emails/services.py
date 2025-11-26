@@ -33,8 +33,8 @@ def send_verification_email(verify_obj_id):
     verify_obj = EmailVerificationEvent.objects.get(id=verify_obj_id)
     email = verify_obj.email
     # next send verification email logic here
-    test_message = get_verification_email_message(obj, as_html=False)
-    text_message_html = get_verification_email_message(obj, as_html=True)
+    test_message = get_verification_email_message(verify_obj, as_html=False)
+    text_message_html = get_verification_email_message(verify_obj, as_html=True)
     return send_mail(
         subject = "Please verify your email",
         message = test_message,
