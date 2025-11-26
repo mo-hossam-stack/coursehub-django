@@ -38,8 +38,7 @@ def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs)
     )
     if lesson_obj is None:
         raise Http404
-    """
-    comment this part for local issue till now
+    
     email_id_exists = request.session.get('email_id')
     
     if lesson_obj.requires_email and not email_id_exists:
@@ -47,7 +46,7 @@ def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs)
         request.session['next_url'] = request.path
         return render(request, "courses/email-required.html", {})
     # template_name = "courses/purchase-required.html"
-    """
+
     # is the video property has no video in there so it will be coming soon
     template_name = "courses/lesson-coming-soon.html"
     

@@ -170,6 +170,9 @@ class Lesson(models.Model):
         return f"{course_path}/lessons/{self.public_id}"
     
 
+    @property
+    def requires_email(self):
+        return self.course.access == AccessRequirement.EMAIL_REQUIRED
     def get_display_name(self):
         return f"{self.title} - {self.course.get_display_name()}"
     
