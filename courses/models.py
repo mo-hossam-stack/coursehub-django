@@ -101,6 +101,25 @@ class Course(models.Model):
         return f"/courses/{self.public_id}"
 
 
+    def get_thumbnail(self):
+        if not self.image:
+            return None
+        return helpers.get_cloudinary_image_object(
+            self, 
+            field_name='image',
+            as_html=False,
+            width=382
+        )
+
+    def get_display_image(self):
+        if not self.image:
+            return None
+        return helpers.get_cloudinary_image_object(
+            self, 
+            field_name='image',
+            as_html=False,
+            width=750
+        )
     """
     -lessons
         - title 
@@ -182,3 +201,12 @@ class Lesson(models.Model):
     @property
     def has_video(self):
         return self.video is not None
+    def get_thumbnail(self):
+        if not self.thumbnail:
+            return None
+        return helpers.get_cloudinary_image_object(
+            self, 
+            field_name='thumbnail',
+            as_html=False,
+            width=382
+        )
