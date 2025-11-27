@@ -16,6 +16,10 @@ ALLOWED_HOSTS = [
 ]
 
 TAILWIND_APP_NAME = "theme"
+INTERNAL_IPS = [
+    "0.0.0.0",
+    "127.0.0.1",
+]
 BASE_URL = config("BASE_URL", default="http://127.0.0.1:8000")
 # Application definition
 
@@ -53,6 +57,11 @@ INSTALLED_APPS = [
     "tailwind",
     "theme",
 ]
+"""if DEBUG:
+    INSTALLED_APPS.append('INTER')
+    middleware.append('INTERNAL.middleware.BrowserReloadMiddleware')
+    comment out in production
+    """
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -62,7 +71,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',  # ← أضف هذا
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'home.urls'

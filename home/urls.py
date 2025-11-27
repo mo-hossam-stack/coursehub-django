@@ -18,3 +18,9 @@ if settings.DEBUG:
         settings.MEDIA_URL,
         document_root = settings.MEDIA_ROOT
     )
+    """
+    also for production comment out
+    urlpatterns += [
+        path("__reload__/", include("django_browser_reload.urls")),
+    ]
+    """
