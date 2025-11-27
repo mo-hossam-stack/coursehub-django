@@ -11,6 +11,8 @@ urlpatterns = [
     path("verify-email/<uuid:token>/", verify_email_token_view, name="verify-email"),
     path("hx/login/", email_token_login_view,),
     path("hx/logout/", logout_btn_hx_view,),
+    path("login/", views.login_logout_template_view,),
+    path("logout/", views.login_logout_template_view,),
 ]
 
 if settings.DEBUG:

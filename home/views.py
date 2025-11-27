@@ -23,3 +23,6 @@ def home_view(request, *args, **kwargs):
         print(form.errors)
     print('email_id', request.session.get('email_id'))
     return render(request, template_name, context)
+
+def login_logout_template_view(request):
+    return render(request, "auth/login-logout.html", {})
