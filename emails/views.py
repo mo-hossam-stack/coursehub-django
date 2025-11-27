@@ -7,7 +7,7 @@ from .forms import EmailForm
 from django.conf import settings
 EMAIL_ADDRESS = settings.EMAIL_ADDRESS
 from django_htmx.http import HttpResponseClientRedirect
-
+from services import start_verification_event
 def logout_btn_hx_view(request):
     if not request.htmx:
         return redirect('/')
