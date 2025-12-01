@@ -4,8 +4,8 @@ from django.conf import settings
 def get_cloudinary_image_object(instance, 
                                 field_name="image",
                                 as_html=False,
+                                width=1200,
                                 format=None,
-                                width=1200
                                 ):
     if not hasattr(instance, field_name):
          return ""
@@ -15,6 +15,9 @@ def get_cloudinary_image_object(instance,
     image_options = {
         "width": width
     }
+    if format is not None:
+        image_options['format'] = format
+
     if format is not None:
         image_options['format'] = format
     if as_html:
