@@ -34,7 +34,7 @@
         ┌────────────────┼────────────────┐
         ▼                ▼                ▼
 ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│    MySQL     │  │  Cloudinary  │  │   Session    │
+│  PostgreSQL  │  │  Cloudinary  │  │   Session    │
 │   Database   │  │  (CDN/Media) │  │    Store     │
 └──────────────┘  └──────────────┘  └──────────────┘
 ```
@@ -64,7 +64,7 @@ coursehub-django/
 | Component | Technology | Version |
 |-----------|-----------|---------|
 | Framework | Django | 5.1.x |
-| Database | MySQL | 8.0+ |
+| Database | PostgreSQL | 14+ |
 | Frontend | HTMX + TailwindCSS v4 + DaisyUI | Latest |
 | Media CDN | Cloudinary | Latest |
 | Email | SMTP (Gmail) | - |
@@ -396,20 +396,20 @@ class EmailVerificationEvent(models.Model):
 ```python
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='127.0.0.1'),
-        'PORT': config('DB_PORT', default='3306'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432'),
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'connect_timeout': 10,
         },
     }
 }
 ```
 
-**Migration History**: Switched from SQLite to MySQL (commit `6f8827a`) to resolve database locking issues.
+**Migration History**: Switched from SQLite to PostgreSQL (commit `6f8827a`) to resolve database locking issues and improve production scalability.
 
 ---
 
@@ -585,7 +585,7 @@ quality="auto"       # Adaptive quality based on content
 │  [Django Application]                                        │
 │      ↓                                                       │
 │  ┌──────────────┬──────────────┬──────────────┐            │
-│  │   MySQL DB   │  Cloudinary  │  SMTP Server │            │
+│  │ PostgreSQL DB│  Cloudinary  │  SMTP Server │            │
 │  └──────────────┴──────────────┴──────────────┘            │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
@@ -728,11 +728,12 @@ python manage.py tailwind build
 - **Video Streaming**: Adaptive bitrate out-of-the-box
 - **Transformations**: On-the-fly image resizing
 
-### 10.4 Why MySQL over SQLite?
+### 10.4 Why PostgreSQL over SQLite?
 
 - **Concurrency**: No database locking issues
 - **Production-Ready**: Better for multi-user scenarios
 - **Scalability**: Handles larger datasets
+- **Advanced Features**: Full-text search, JSON support, better indexing
 
 ---
 

@@ -420,12 +420,12 @@ templates/
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='127.0.0.1'),
-        'PORT': config('DB_PORT', default='3306'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432'),
     }
 }
 
@@ -453,7 +453,7 @@ ALLOWED_HOSTS = [host.strip() for host in config('ALLOWED_HOSTS', default='').sp
 
 ### 7.2 URL Configuration
 
-**File**: [`home/urls.py`](file:///home/mhmd/Desktop/projects/coursehub-django/home/urls.py)
+**File**: [`home/urls.py`](./home/urls.py)
 
 ```python
 urlpatterns = [
@@ -468,7 +468,7 @@ urlpatterns = [
 ]
 ```
 
-**File**: [`courses/urls.py`](file:///home/mhmd/Desktop/projects/coursehub-django/courses/urls.py)
+**File**: [`courses/urls.py`](./courses/urls.py)
 
 ```python
 urlpatterns = [
@@ -480,7 +480,7 @@ urlpatterns = [
 
 ### 7.3 Requirements
 
-**File**: [`requirements.txt`](file:///home/mhmd/Desktop/projects/coursehub-django/requirements.txt)
+**File**: [`requirements.txt`](.)
 
 ```
 Django>=5.1,<5.2
@@ -488,13 +488,14 @@ pillow
 cloudinary
 python-decouple
 django-htmx
-mysqlclient
+psycopg2
 django-tailwind[reload]
+gunicorn
 ```
 
 ### 7.4 Admin Configuration
 
-**File**: [`courses/admin.py`](file:///home/mhmd/Desktop/projects/coursehub-django/courses/admin.py)
+**File**: [`courses/admin.py`](./courses/admin.py)
 
 **Features**:
 - Inline lesson editing within course admin

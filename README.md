@@ -50,7 +50,7 @@ A modern, production-ready **course management platform** built with **Django 5.
 |-------|-----------|---------|
 | **Backend** | Django | 5.1.x |
 | **Language** | Python | 3.12+ |
-| **Database** | MySQL | 8.0+ |
+| **Database** | PostgreSQL | 14+ |
 | **Frontend** | HTMX + TailwindCSS v4 + Flowbite + DaisyUI | Latest |
 | **Media CDN** | Cloudinary | Latest |
 | **Email** | SMTP (Gmail) | - |
@@ -63,7 +63,7 @@ A modern, production-ready **course management platform** built with **Django 5.
 ### Prerequisites
 
 - Python 3.12+
-- MySQL 8.0+
+- PostgreSQL 14+
 - Node.js (for TailwindCSS)
 - Cloudinary account
 - Gmail account (for SMTP)
@@ -72,7 +72,7 @@ A modern, production-ready **course management platform** built with **Django 5.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/coursehub-django.git
+   git clone https://github.com/mo-hossam-stack/coursehub-django.git
    cd coursehub-django
    ```
 
@@ -95,13 +95,12 @@ A modern, production-ready **course management platform** built with **Django 5.
 
 5. **Set up database**
    ```bash
-   # Create MySQL database
-   mysql -u root -p
+   # Create PostgreSQL database
+   sudo -u postgres psql
    CREATE DATABASE coursehub_db;
-   CREATE USER 'coursehub_user'@'localhost' IDENTIFIED BY 'your_password';
-   GRANT ALL PRIVILEGES ON coursehub_db.* TO 'coursehub_user'@'localhost';
-   FLUSH PRIVILEGES;
-   EXIT;
+   CREATE USER coursehub_user WITH PASSWORD 'your_password';
+   GRANT ALL PRIVILEGES ON DATABASE coursehub_db TO coursehub_user;
+   \q
    ```
 
 6. **Run migrations**
@@ -165,7 +164,7 @@ A modern, production-ready **course management platform** built with **Django 5.
 
 ### Docker Services
 
-- **db**: MySQL 8.0 database
+- **db**: PostgreSQL 14 database
 - **web**: Django application with Gunicorn
 - **nginx**: Reverse proxy (production)
 
@@ -204,19 +203,18 @@ coursehub-django/
 Create a `.env` file with the following variables:
 
 ```bash
+
 # Django Core
-SECRET_KEY=your-secret-key
-DEBUG=False
-ALLOWED_HOSTS=localhost,yourdomain.com
-BASE_URL=https://yourdomain.com
+SECRET_KEY=your-secret-key-here-use-secrets-token-urlsafe-50
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1,yourdomain.com
 
 # Database
-DB_NAME=coursehub_db
-DB_USER=coursehub_user
-DB_PASSWORD=your_db_password
-DB_HOST=127.0.0.1
-DB_PORT=3306
-
+DB_NAME=Database_name_here
+DB_USER=database_user_here
+DB_PASSWORD=secure_password_here
+DB_PORT=5432
+DB_HOST=localhost
 # Cloudinary
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_PUBLIC_API_KEY=your_api_key
@@ -232,8 +230,7 @@ EMAIL_USE_TLS=True
 
 # Admin
 ADMIN_USER_NAME=Admin Name
-ADMIN_USER_EMAIL=admin@yourdomain.com
-```
+ADMIN_USER_EMAIL="YOUR_ADMIN_USER_EMAIL"```
 
 ### Generate Secret Key
 
@@ -320,59 +317,12 @@ python manage.py tailwind build
 
 ## 🌐 Production Deployment
 
-### Pre-Deployment Checklist
 
-- [ ] Set `DEBUG=False`
-- [ ] Configure `ALLOWED_HOSTS`
-- [ ] Generate strong `SECRET_KEY`
-- [ ] Set up SSL certificates
-- [ ] Configure Cloudinary credentials
-- [ ] Set up SMTP for email
-- [ ] Configure database backups
-- [ ] Set up monitoring (Sentry, Prometheus)
 
-### Deployment Steps
-
-1. **Set up server** (Ubuntu/Debian)
-   ```bash
-   sudo apt update
-   sudo apt install docker.io docker-compose
+   
    ```
 
-2. **Clone repository**
-   ```bash
-   git clone https://github.com/yourusername/coursehub-django.git
-   cd coursehub-django
-   ```
-
-3. **Configure environment**
-   ```bash
-   cp .env.example .env
-   nano .env  # Edit with production values
-   ```
-
-4. **Set up SSL** (Let's Encrypt)
-   ```bash
-   sudo certbot certonly --standalone -d yourdomain.com
-   sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem nginx/ssl/
-   sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem nginx/ssl/
-   ```
-
-5. **Deploy with Docker**
-   ```bash
-   docker-compose up -d --build
-   docker-compose exec web python manage.py migrate
-   docker-compose exec web python manage.py createsuperuser
-   ```
-
-6. **Verify deployment**
-   ```bash
-   docker-compose ps
-   docker-compose logs web
-   ```
-
-For detailed deployment instructions, see [`Docker_Setup.md`](Docker_Setup.md).
-
+For detailed deployment instructions, 
 ---
 
 ## 📊 Database Schema
@@ -414,11 +364,7 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
 
 ## 🙏 Acknowledgments
 

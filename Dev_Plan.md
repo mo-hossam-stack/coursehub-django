@@ -17,7 +17,7 @@ Structured development roadmap with implemented features, missing features, refa
 - [x] Lesson model with title, description, video, thumbnail
 - [x] Cloudinary integration for media storage
 - [x] Public ID generation (slug + UUID)
-- [x] MySQL database configuration
+- [x] PostgreSQL database configuration
 - [x] Admin panel with inline lesson editing
 - [x] Cloudinary image/video previews in admin
 - [x] Path generation for SEO-friendly URLs
@@ -29,11 +29,11 @@ Structured development roadmap with implemented features, missing features, refa
 - `b1a9580`: Cloudinary configuration
 - `4c18a7c`: Lesson model initialization
 - `a2839f7`: Public ID generation
-- `6f8827a`: **Migration from SQLite to MySQL**
+- `6f8827a`: **Migration from SQLite to PostgreSQL**
 
 ### Design Decisions
 
-- **MySQL over SQLite**: Resolved database locking issues for concurrent access
+- **PostgreSQL over SQLite**: Resolved database locking issues for concurrent access and better production scalability
 - **Cloudinary**: Offload media storage to CDN for scalability
 - **Public ID pattern**: `{slug}--{uuid5}` for human-readable + unique URLs
 
@@ -507,7 +507,7 @@ tests/
 
 - [ ] **Database**:
   - Read replicas for high traffic
-  - Connection pooling (PgBouncer for PostgreSQL)
+  - Connection pooling (PgBouncer)
   
 - [ ] **Caching**:
   - Redis cluster for distributed caching
