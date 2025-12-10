@@ -5,3 +5,5 @@ python-decouple
 django-htmx
 mysqlclient
 django-tailwind[reload]
+gunicorn # WSGI HTTP server for UNIX
+psycopg2 # PostgreSQL database adapter not using psycopg2-binary for production
