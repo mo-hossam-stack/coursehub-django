@@ -120,6 +120,28 @@ class Course(models.Model):
             as_html=False,
             width=750
         )
+    
+    def get_responsive_thumbnail(self):
+        """Returns responsive srcset for course thumbnail"""
+        if not self.image:
+            return None
+        return helpers.get_responsive_image_srcset(
+            self,
+            field_name='image',
+            base_width=750
+        )
+    
+    def get_mobile_thumbnail(self):
+        """Returns mobile-optimized thumbnail"""
+        if not self.image:
+            return None
+        return helpers.get_cloudinary_image_object(
+            self,
+            field_name='image',
+            width=640,
+            lazy=True,
+            responsive=False
+        )
     """
     -lessons
         - title 
@@ -220,3 +242,34 @@ class Lesson(models.Model):
             width=width
         )
         return None
+    
+    def get_responsive_thumbnail(self):
+        """Returns responsive srcset for lesson thumbnail"""
+        field = 'thumbnail' if self.thumbnail else 'video'
+        if field == 'video' and not self.video:
+            return None
+        return helpers.get_responsive_image_srcset(
+            self,
+            field_name=field,
+            base_width=382
+        )
+    
+    def get_video_poster(self):
+        """Returns optimized video poster image"""
+        if not self.video:
+            return None
+        return helpers.get_video_poster_image(
+            self,
+            field_name='video',
+            time_offset=0
+        )
+    
+    def get_mobile_video(self):
+        """Returns mobile-optimized video player"""
+        if not self.video:
+            return None
+        return helpers.get_cloudinary_video_object_mobile(
+            self,
+            field_name='video',
+            network_quality='auto'
+        )
