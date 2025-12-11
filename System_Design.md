@@ -409,7 +409,7 @@ DATABASES = {
 }
 ```
 
-**Migration History**: Switched from SQLite to PostgreSQL (commit `6f8827a`) to resolve database locking issues and improve production scalability.
+**Migration History**: Switched from SQLite to MySQL (commit `6f8827a`) to resolve database locking issues.
 
 ---
 
@@ -597,34 +597,32 @@ quality="auto"       # Adaptive quality based on content
 
 ```bash
 # Django Core
-SECRET_KEY=<django-secret-key>
-DEBUG=False
-ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
-BASE_URL=https://yourdomain.com
+SECRET_KEY=your-secret-key-here-use-secrets-token-urlsafe-50
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1,yourdomain.com
 
 # Database
-DB_NAME=coursehub_db
-DB_USER=coursehub_user
-DB_PASSWORD=<secure-password>
-DB_HOST=127.0.0.1
-DB_PORT=3306
-
+DB_NAME=Database_name_here
+DB_USER=database_user_here
+DB_PASSWORD=secure_password_here
+DB_PORT=5432
+DB_HOST=localhost
 # Cloudinary
-CLOUDINARY_CLOUD_NAME=<your-cloud-name>
-CLOUDINARY_PUBLIC_API_KEY=<your-api-key>
-CLOUDINARY_SECRET_API_KEY=<your-api-secret>
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_PUBLIC_API_KEY=your_api_key
+CLOUDINARY_SECRET_API_KEY=your_api_secret
 
 # Email (SMTP)
 EMAIL_ADDRESS=noreply@yourdomain.com
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
-EMAIL_HOST_USER=<gmail-address>
-EMAIL_HOST_PASSWORD=<app-password>
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
 EMAIL_USE_TLS=True
 
 # Admin
 ADMIN_USER_NAME=Admin Name
-ADMIN_USER_EMAIL=admin@yourdomain.com
+ADMIN_USER_EMAIL="YOUR_ADMIN_USER_EMAIL"
 ```
 
 ### 9.3 Static Files
