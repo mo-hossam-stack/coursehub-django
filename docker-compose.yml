@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   # PostgreSQL Database
@@ -32,7 +32,7 @@ services:
     command: >
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
-             gunicorn home.wsgi:application --bind 0.0.0.0:8000 --workers 4"
+             gunicorn home.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 600 --graceful-timeout 600"
     volumes:
       - ./:/app
       - static_volume:/app/staticfiles
