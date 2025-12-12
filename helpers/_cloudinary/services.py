@@ -1,15 +1,7 @@
 from django.template.loader import get_template
 from django.conf import settings
 
-# ============================================================================
-# RESPONSIVE BREAKPOINTS CONFIGURATION
-# ============================================================================
-
 def get_responsive_video_breakpoints():
-    """
-    Returns mobile-first responsive breakpoints for videos.
-    Optimized for different device sizes and network conditions.
-    """
     return {
         'mobile_small': {'width': 320, 'quality': 'auto:eco', 'bitrate': '500k'},
         'mobile_large': {'width': 640, 'quality': 'auto:eco', 'bitrate': '1m'},
@@ -19,9 +11,6 @@ def get_responsive_video_breakpoints():
     }
 
 def get_responsive_image_breakpoints():
-    """
-    Returns responsive breakpoints for images with optimal quality settings.
-    """
     return [
         {'width': 320, 'dpr': 1},
         {'width': 640, 'dpr': 1},
@@ -30,10 +19,6 @@ def get_responsive_image_breakpoints():
         {'width': 1920, 'dpr': 1},
     ]
 
-# ============================================================================
-# ENHANCED IMAGE FUNCTIONS
-# ============================================================================
-
 def get_cloudinary_image_object(instance, 
                                 field_name="image",
                                 as_html=False,
@@ -41,18 +26,6 @@ def get_cloudinary_image_object(instance,
                                 format=None,
                                 lazy=True,
                                 responsive=False):
-    """
-    Enhanced image helper with lazy loading and responsive support.
-    
-    Args:
-        instance: Model instance with CloudinaryField
-        field_name: Name of the CloudinaryField
-        as_html: Return HTML img tag instead of URL
-        width: Default width
-        format: Force specific format (or use 'auto' for WebP/AVIF)
-        lazy: Enable lazy loading
-        responsive: Generate responsive srcset
-    """
     if not hasattr(instance, field_name):
         return ""
     
@@ -82,10 +55,6 @@ def get_cloudinary_image_object(instance,
 
 
 def get_responsive_image_srcset(instance, field_name="image", base_width=1200):
-    """
-    Generate responsive srcset for images.
-    Returns a dictionary with src, srcset, and sizes.
-    """
     if not hasattr(instance, field_name):
         return {"src": "", "srcset": "", "sizes": ""}
     
@@ -108,7 +77,6 @@ def get_responsive_image_srcset(instance, field_name="image", base_width=1200):
         url = image_object.build_url(**options)
         srcset_parts.append(f"{url} {bp['width']}w")
     
-    # Default src (fallback)
     default_options = {
         "width": base_width,
         "crop": "fill",
@@ -146,9 +114,6 @@ def get_image_placeholder(instance, field_name="image"):
     return image_object.build_url(**placeholder_options)
 
 
-# ============================================================================
-# ENHANCED VIDEO FUNCTIONS
-# ============================================================================
 
 def get_cloudinary_video_object(instance, 
                                 field_name="video",
@@ -162,23 +127,6 @@ def get_cloudinary_video_object(instance,
                                 autoplay=False,
                                 streaming_profile="hd",
                                 adaptive=True):
-    """
-    Enhanced video helper with adaptive streaming and mobile optimization.
-    
-    Args:
-        instance: Model instance with CloudinaryField
-        field_name: Name of the video CloudinaryField
-        as_html: Return HTML video player instead of URL
-        width: Video width
-        height: Video height
-        sign_url: Sign URL for private videos
-        fetch_format: Video format (auto recommended)
-        quality: Quality preset (auto:eco, auto:good, auto:best)
-        controls: Show video controls
-        autoplay: Autoplay video
-        streaming_profile: Streaming profile (hd, sd, full_hd)
-        adaptive: Enable adaptive bitrate streaming
-    """
     if not hasattr(instance, field_name):
         return ""
     
@@ -232,14 +180,6 @@ def get_cloudinary_video_object(instance,
 def get_cloudinary_video_object_mobile(instance, 
                                        field_name="video",
                                        network_quality="auto"):
-    """
-    Mobile-optimized video with bandwidth-aware quality selection.
-    
-    Args:
-        instance: Model instance
-        field_name: Video field name
-        network_quality: 'slow', 'medium', 'fast', or 'auto'
-    """
     quality_map = {
         'slow': 'auto:eco',
         'medium': 'auto:good',
@@ -259,14 +199,6 @@ def get_cloudinary_video_object_mobile(instance,
 
 
 def get_video_poster_image(instance, field_name="video", time_offset=0):
-    """
-    Generate optimized poster image from video frame.
-    
-    Args:
-        instance: Model instance
-        field_name: Video field name
-        time_offset: Time offset in seconds for frame extraction
-    """
     if not hasattr(instance, field_name):
         return ""
     
