@@ -4,5 +4,6 @@ cloudinary
 python-decouple
 django-htmx
 django-tailwind[reload]
+whitenoise>=6.6.0  # Static file serving for production
 gunicorn # WSGI HTTP server for UNIX
-psycopg2 # PostgreSQL database adapter not using psycopg2-binary for production
+psycopg2-binary # PostgreSQL database adapter
