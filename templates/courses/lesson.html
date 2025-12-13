@@ -1,12 +1,135 @@
 {% extends "base.html" %}
 
-
 {% block content %}
 
+<!-- Lesson Detail Page with Material Design -->
+<div class="lesson-page min-h-screen bg-gray-50 dark:bg-gray-900">
 
-<h1>{{ object.title }}</h1>
+    <!-- Breadcrumb Navigation -->
+    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+        <div class="max-w-7xl mx-auto">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li>
+                    <a href="/" class="text-blue-600 hover:text-blue-800 dark:text-blue-400">Home</a>
+                </li>
+                <li class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <a href="{{ object.course.get_absolute_url }}"
+                        class="text-blue-600 hover:text-blue-800 dark:text-blue-400">
+                        {{ object.course.title }}
+                    </a>
+                </li>
+                <li class="flex items-center">
+                    <svg class="w-4 h-4 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-gray-700 dark:text-gray-300">{{ object.title }}</span>
+                </li>
+            </ol>
+        </div>
+    </nav>
 
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-{{ video_embed }}
+            <!-- Video Player Column (Sticky on Desktop) -->
+            <div class="lg:col-span-2">
+                <div class="lg:sticky lg:top-4 space-y-6">
+
+                    <!-- Video Player -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                        {{ video_embed|safe }}
+                    </div>
+
+                    <!-- Lesson Info -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                            {{ object.title }}
+                        </h1>
+
+                        <!-- Action Buttons - Removed -->
+                        <!-- <div class="flex flex-wrap gap-3 mb-6"> ... </div> -->
+
+                        <!-- Description -->
+                        {% if object.description %}
+                        <div class="prose dark:prose-invert max-w-none">
+                            <h3 class="text-lg font-semibold mb-2">About this lesson</h3>
+                            {{ object.description|linebreaks }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Sidebar: Course Lessons -->
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden lg:sticky lg:top-4">
+                    <div class="p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                        <h3 class="font-semibold text-lg">Course Content</h3>
+                    </div>
+
+                    <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-[600px] overflow-y-auto">
+                        {% for lesson in object.course.lesson_set.all %}
+                        <a href="{{ lesson.get_absolute_url }}"
+                            class="block p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors {% if lesson.id == object.id %}bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600{% endif %}">
+                            <div class="flex items-start gap-3">
+                                <!-- Thumbnail -->
+                                {% if lesson.get_thumbnail %}
+                                <img src="{{ lesson.get_thumbnail }}" alt="{{ lesson.title }}"
+                                    class="w-20 h-12 object-cover rounded flex-shrink-0" loading="lazy">
+                                {% else %}
+                                <div
+                                    class="w-20 h-12 bg-gray-200 dark:bg-gray-700 rounded flex-shrink-0 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                {% endif %}
+
+                                <!-- Lesson Info -->
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        {{ lesson.title }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        {% if lesson.is_coming_soon %}
+                                        Coming Soon
+                                        {% else %}
+                                        Ready to watch
+                                        {% endif %}
+                                    </p>
+                                </div>
+
+                                <!-- Current Indicator -->
+                                {% if lesson.id == object.id %}
+                                <div class="flex-shrink-0">
+                                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
 
 {% endblock content %}

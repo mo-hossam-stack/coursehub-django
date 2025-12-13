@@ -1,37 +1,333 @@
 {% load django_htmx %}
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-video-player/2.0.5/cld-video-player.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-video-player/2.0.5/cld-video-player.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://unpkg.com/htmx.org@2.0.2" integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ" crossorigin="anonymous"></script>
+
+<!-- Cloudinary Video Player (Latest Version) -->
+<link rel="stylesheet" href="https://unpkg.com/cloudinary-video-player@2.1.0/dist/cld-video-player.min.css"
+    crossorigin="anonymous" />
+<script src="https://unpkg.com/cloudinary-video-player@2.1.0/dist/cld-video-player.min.js"
+    crossorigin="anonymous"></script>
+
+<!-- HTMX -->
+<script src="https://unpkg.com/htmx.org@2.0.2"
+    integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ"
+    crossorigin="anonymous"></script>
 {% django_htmx_script %}
 
-
-
 <script defer>
+    // ========================================================================
+    // NETWORK QUALITY DETECTION
+    // ========================================================================
+
+    function detectNetworkQuality() {
+        if ('connection' in navigator) {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const effectiveType = connection.effectiveType;
+
+            const qualityMap = {
+                'slow-2g': 'eco',
+                '2g': 'eco',
+                '3g': 'good',
+                '4g': 'best',
+            };
+
+            return qualityMap[effectiveType] || 'good';
+        }
+        return 'good'; // Default
+    }
+
+    function getNetworkStatus() {
+        if ('connection' in navigator) {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            return {
+                type: connection.effectiveType,
+                downlink: connection.downlink,
+                rtt: connection.rtt,
+                saveData: connection.saveData,
+            };
+        }
+        return null;
+    }
+
+    // ========================================================================
+    // ADAPTIVE QUALITY SELECTION
+    // ========================================================================
+
+    function selectOptimalQuality(videoElement) {
+        const networkQuality = detectNetworkQuality();
+        const networkStatus = getNetworkStatus();
+
+        // If user has data saver enabled, use eco quality
+        if (networkStatus && networkStatus.saveData) {
+            return 'eco';
+        }
+
+        // Check viewport size
+        const viewportWidth = window.innerWidth;
+        if (viewportWidth < 640) {
+            return 'eco'; // Mobile
+        } else if (viewportWidth < 1024) {
+            return 'good'; // Tablet
+        }
+
+        return networkQuality;
+    }
+
+    // ========================================================================
+    // VIDEO PLAYER INITIALIZATION
+    // ========================================================================
 
     function renderVideoElement(videoPlayerElement) {
-        const currentVideoId = videoPlayerElement.getAttribute('id')
-        const videoPlayerId = `${currentVideoId}` + '-cfe-' + Math.random().toString(36).substr(2, 9);
+        const container = videoPlayerElement.closest('[data-video-container]');
+        const skeleton = container?.querySelector('[data-skeleton]');
+        const qualityBadge = container?.querySelector('[data-quality-badge]');
+        const networkStatusEl = container?.querySelector('[data-network-status]');
+
+        // Generate unique ID
+        const currentVideoId = videoPlayerElement.getAttribute('id');
+        const videoPlayerId = `${currentVideoId}-cfe-${Math.random().toString(36).substr(2, 9)}`;
         videoPlayerElement.setAttribute("id", videoPlayerId);
+
         const cloudName = videoPlayerElement.dataset.cloudName;
         const videoUrl = videoPlayerElement.dataset.videoUrl;
-        if (cloudName && videoUrl) {
+        const isAdaptive = videoPlayerElement.dataset.adaptive === 'true';
+
+        if (!cloudName || !videoUrl) {
+            console.error('Missing cloud name or video URL');
+            return;
+        }
+
+        try {
+            // Initialize Cloudinary Video Player
             const cld = cloudinary.videoPlayer(videoPlayerId, {
-                cloudName: cloudName
+                cloudName: cloudName,
+                // Optimized mobile configuration (Smart Progressive)
+                fluid: true,
+                controls: true,
+                muted: false,
+                autoplay: false,
+                preload: 'metadata',
+                playsinline: true,     // Critical for iOS inline playback
+                // sourceTypes removed: Player detects codec from URL (f_auto)
             });
+
+            // Set video source
             cld.source(videoUrl);
+
+            // Hide skeleton when video is ready
+            cld.on('loadedmetadata', () => {
+                if (skeleton) {
+                    skeleton.classList.add('hidden');
+                }
+            });
+
+            // Show quality badge
+            cld.on('qualitychanged', (event) => {
+                if (qualityBadge) {
+                    const qualityText = qualityBadge.querySelector('.quality-text');
+                    if (qualityText) {
+                        qualityText.textContent = event.quality || 'Auto';
+                    }
+                    qualityBadge.classList.remove('hidden');
+                }
+            });
+
+            // Track playback events
+            cld.on('play', () => {
+                console.log('Video playback started');
+                trackVideoEvent('play', videoUrl);
+            });
+
+            cld.on('pause', () => {
+                console.log('Video paused');
+                trackVideoEvent('pause', videoUrl);
+            });
+
+            cld.on('ended', () => {
+                console.log('Video ended');
+                trackVideoEvent('complete', videoUrl);
+            });
+
+            cld.on('error', (error) => {
+                console.error('Video player error:', error);
+                if (skeleton) {
+                    skeleton.innerHTML = `
+                        <div class="flex items-center justify-center h-full text-white text-center p-4">
+                            <div>
+                                <svg class="w-12 h-12 mx-auto mb-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <p class="text-sm">Failed to load video</p>
+                                <button onclick="location.reload()" class="mt-2 px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 text-sm">
+                                    Retry
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            updateNetworkStatus(networkStatusEl);
+
+            if ('connection' in navigator) {
+                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                connection.addEventListener('change', () => {
+                    updateNetworkStatus(networkStatusEl);
+                    // Optionally adjust quality based on new network conditions
+                    const newQuality = selectOptimalQuality(videoPlayerElement);
+                    console.log('Network changed, optimal quality:', newQuality);
+                });
+            }
+
+        } catch (error) {
+            console.error('Failed to initialize video player:', error);
+        }
+    }
+
+    function updateNetworkStatus(networkStatusEl) {
+        if (!networkStatusEl) return;
+
+        const status = getNetworkStatus();
+        if (!status) {
+            networkStatusEl.classList.add('hidden');
+            return;
+        }
+
+        const networkText = networkStatusEl.querySelector('.network-text');
+        const indicator = networkStatusEl.querySelector('.w-2');
+
+        if (status.effectiveType === '4g') {
+            networkText.textContent = 'Fast Connection';
+            indicator.classList.remove('bg-yellow-500', 'bg-red-500');
+            indicator.classList.add('bg-green-500');
+        } else if (status.effectiveType === '3g') {
+            networkText.textContent = 'Good Connection';
+            indicator.classList.remove('bg-green-500', 'bg-red-500');
+            indicator.classList.add('bg-yellow-500');
+        } else {
+            networkText.textContent = 'Slow Connection';
+            indicator.classList.remove('bg-green-500', 'bg-yellow-500');
+            indicator.classList.add('bg-red-500');
+        }
+
+        networkStatusEl.classList.remove('hidden');
+    }
+
+
+    function trackVideoEvent(eventType, videoUrl) {
+        console.log('Video event:', eventType, videoUrl);
+
+    }
+
+
+    function initLazyLoading() {
+        if ('IntersectionObserver' in window) {
+            const lazyImages = document.querySelectorAll('img[data-src]');
+
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+
+                        // Load the actual image
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                        }
+
+                        if (img.dataset.srcset) {
+                            img.srcset = img.dataset.srcset;
+                        }
+
+                        // Add fade-in effect
+                        img.classList.add('fade-in');
+
+                        // Stop observing this image
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '50px 0px', // Start loading 50px before entering viewport
+                threshold: 0.01
+            });
+
+            lazyImages.forEach(img => imageObserver.observe(img));
+        } else {
+            // Fallback for browsers without IntersectionObserver
+            const lazyImages = document.querySelectorAll('img[data-src]');
+            lazyImages.forEach(img => {
+                if (img.dataset.src) img.src = img.dataset.src;
+                if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+            });
         }
     }
 
     function renderAllVideos() {
         const videoPlayerClassName = 'cfe-video';
         const videoPlayerElements = document.getElementsByClassName(videoPlayerClassName);
-        console.log(videoPlayerElements);
+
+        console.log(`Found ${videoPlayerElements.length} video player(s)`);
+
         for (let el of videoPlayerElements) {
-            console.log(el);
             renderVideoElement(el);
         }
     }
 
-    document.addEventListener('DOMContentLoaded', renderAllVideos)
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderAllVideos();
+        initLazyLoading();
+    });
+
+    document.body.addEventListener('htmx:afterSwap', () => {
+        renderAllVideos();
+        initLazyLoading();
+    });
+
 </script>
+
+<!-- Custom CSS for animations -->
+<style>
+    @keyframes shimmer {
+        0% {
+            background-position: -1000px 0;
+        }
+
+        100% {
+            background-position: 1000px 0;
+        }
+    }
+
+    .animate-shimmer {
+        animation: shimmer 2s infinite linear;
+        background: linear-gradient(90deg, #1f2937 0%, #374151 50%, #1f2937 100%);
+        background-size: 1000px 100%;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .aspect-w-16 {
+        position: relative;
+        padding-bottom: 56.25%;
+    }
+
+    .aspect-w-16>* {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+</style>
