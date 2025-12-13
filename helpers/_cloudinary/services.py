@@ -136,22 +136,22 @@ def get_cloudinary_video_object(instance,
     
     video_options = {
         "sign_url": sign_url,
-        "fetch_format": fetch_format,
-        "quality": quality,
+        "fetch_format": "auto",  # Smart progressive (WebM/AV1/MP4)
+        "quality": "auto",       # Smart quality
         "controls": controls,
         "autoplay": autoplay,
     }
     
-    # Add streaming profile for adaptive streaming
-    if adaptive:
-        video_options['streaming_profile'] = streaming_profile
-    
+    # Optional: Limit width for bandwidth savings on mobile if explicitly requested
     if width is not None:
         video_options['width'] = width
+        video_options['crop'] = "limit"
+        
     if height is not None:
         video_options['height'] = height
-    if height and width:
-        video_options['crop'] = "limit"
+        
+    # NOTE: Adaptive streaming (streaming_profile) removed in favor of 
+    # robust progressive download (f_auto, q_auto) for mobile stability.
     
     url = video_object.build_url(**video_options)
     

@@ -100,17 +100,14 @@
             // Initialize Cloudinary Video Player
             const cld = cloudinary.videoPlayer(videoPlayerId, {
                 cloudName: cloudName,
+                // Optimized mobile configuration (Smart Progressive)
                 fluid: true,
                 controls: true,
                 muted: false,
                 autoplay: false,
                 preload: 'metadata',
-                playsinline: true,
-                // Adaptive streaming configuration
-                sourceTypes: ['hls', 'dash', 'mp4'],
-                transformation: {
-                    streaming_profile: 'hd',
-                },
+                playsinline: true,     // Critical for iOS inline playback
+                // sourceTypes removed: Player detects codec from URL (f_auto)
             });
 
             // Set video source
@@ -150,7 +147,6 @@
                 trackVideoEvent('complete', videoUrl);
             });
 
-            // Error handling
             cld.on('error', (error) => {
                 console.error('Video player error:', error);
                 if (skeleton) {
@@ -170,10 +166,8 @@
                 }
             });
 
-            // Update network status indicator
             updateNetworkStatus(networkStatusEl);
 
-            // Listen for network changes
             if ('connection' in navigator) {
                 const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
                 connection.addEventListener('change', () => {
@@ -218,23 +212,12 @@
         networkStatusEl.classList.remove('hidden');
     }
 
-    // ========================================================================
-    // VIDEO ANALYTICS
-    // ========================================================================
 
     function trackVideoEvent(eventType, videoUrl) {
-        // Send analytics to your backend or analytics service
         console.log('Video event:', eventType, videoUrl);
 
-        // Example: Send to backend via HTMX
-        // htmx.ajax('POST', '/api/video-analytics/', {
-        //     values: { event: eventType, video: videoUrl }
-        // });
     }
 
-    // ========================================================================
-    // LAZY LOADING FOR IMAGES
-    // ========================================================================
 
     function initLazyLoading() {
         if ('IntersectionObserver' in window) {
@@ -277,10 +260,6 @@
         }
     }
 
-    // ========================================================================
-    // INITIALIZE ALL VIDEOS
-    // ========================================================================
-
     function renderAllVideos() {
         const videoPlayerClassName = 'cfe-video';
         const videoPlayerElements = document.getElementsByClassName(videoPlayerClassName);
@@ -292,16 +271,12 @@
         }
     }
 
-    // ========================================================================
-    // INITIALIZATION
-    // ========================================================================
 
     document.addEventListener('DOMContentLoaded', () => {
         renderAllVideos();
         initLazyLoading();
     });
 
-    // Re-initialize after HTMX swaps
     document.body.addEventListener('htmx:afterSwap', () => {
         renderAllVideos();
         initLazyLoading();
@@ -341,11 +316,9 @@
         }
     }
 
-    /* Aspect ratio utility (if not using Tailwind CSS aspect ratio plugin) */
     .aspect-w-16 {
         position: relative;
         padding-bottom: 56.25%;
-        /* 16:9 */
     }
 
     .aspect-w-16>* {
