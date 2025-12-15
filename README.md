@@ -145,22 +145,25 @@ A modern, production-ready **course management platform** built with **Django 5.
 
 2. **Build and start services**
    ```bash
-   docker-compose up -d --build
+   docker compose up -d --build
    ```
 
 3. **Run migrations**
    ```bash
-   docker-compose exec web python manage.py migrate
+   docker compose exec web python manage.py migrate
    ```
 
 4. **Create superuser**
    ```bash
-   docker-compose exec web python manage.py createsuperuser
+   docker compose exec web python manage.py createsuperuser
    ```
 
 5. **Access application**
    - Application: http://localhost:8000
    - Admin: http://localhost:8000/admin
+
+6. **Stop services**
+   - docker compose down
 
 ### Docker Services
 

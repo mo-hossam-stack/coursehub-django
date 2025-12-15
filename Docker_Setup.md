@@ -8,7 +8,7 @@ Complete Docker configuration for development and production deployment with Pos
 ## Table of Contents
 
 1. [Dockerfile (Production-Ready)](#1-dockerfile-production-ready)
-2. [docker-compose.yml (Full Stack)](#2-docker-composeyml-full-stack)
+2. [docker compose.yml (Full Stack)](#2-docker composeyml-full-stack)
 3. [Environment Configuration](#3-environment-configuration)
 4. [Build & Run Instructions](#4-build--run-instructions)
 5. [Production Deployment](#5-production-deployment)
@@ -112,9 +112,9 @@ CMD ["gunicorn", "home.wsgi:application", "--bind", "0.0.0.0:8000", "--workers",
 
 ---
 
-## 2. docker-compose.yml (Full Stack)
+## 2. docker compose.yml (Full Stack)
 
-**File**: `docker-compose.yml`
+**File**: `docker compose.yml`
 
 ```yaml
 version: '3.8'
@@ -341,27 +341,30 @@ cp .env.example .env
 # Edit .env with your configuration
 
 # 3. Build images
-docker-compose build
+docker compose build
 
 # 4. Start services
-docker-compose up -d
+docker compose up -d
 
 # 5. Run migrations
-docker-compose exec web python manage.py migrate
+docker compose exec web python manage.py migrate
 
 # 6. Create superuser
-docker-compose exec web python manage.py createsuperuser
+docker compose exec web python manage.py createsuperuser
 
 # 7. Access application
 # http://localhost:8000
 # Admin: http://localhost:8000/admin
+
+# 6.Stop services
+  docker compose down
 ```
 
 ### 4.2 Development with Hot Reload
 
 For development with live code reloading:
 
-**File**: `docker-compose.dev.yml`
+**File**: `docker compose.dev.yml`
 
 ```yaml
 version: '3.8'
@@ -441,35 +444,35 @@ CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 **Run Development**:
 ```bash
-docker-compose -f docker-compose.dev.yml up
+docker compose -f docker compose.dev.yml up
 ```
 
 ### 4.3 Common Commands
 
 ```bash
 # View logs
-docker-compose logs -f web
+docker compose logs -f web
 
 # Execute Django commands
-docker-compose exec web python manage.py <command>
+docker compose exec web python manage.py <command>
 
 # Access Django shell
-docker-compose exec web python manage.py shell
+docker compose exec web python manage.py shell
 
 # Run tests
-docker-compose exec web python manage.py test
+docker compose exec web python manage.py test
 
 # Stop services
-docker-compose down
+docker compose down
 
 # Stop and remove volumes (WARNING: deletes database)
-docker-compose down -v
+docker compose down -v
 
 # Rebuild after code changes
-docker-compose up -d --build
+docker compose up -d --build
 
 # View running containers
-docker-compose ps
+docker compose ps
 ```
 
 ---
@@ -508,7 +511,7 @@ sudo chmod 600 nginx/ssl/privkey.pem
 **Auto-renewal**:
 ```bash
 # Add to crontab
-0 0 1 * * certbot renew --quiet && docker-compose restart nginx
+0 0 1 * * certbot renew --quiet && docker compose restart nginx
 ```
 
 ### 5.3 Production Deployment Steps
@@ -526,20 +529,20 @@ cp .env.example .env
 nano .env  # Edit with production values
 
 # 4. Build and start services
-docker-compose up -d --build
+docker compose up -d --build
 
 # 5. Run migrations
-docker-compose exec web python manage.py migrate
+docker compose exec web python manage.py migrate
 
 # 6. Create superuser
-docker-compose exec web python manage.py createsuperuser
+docker compose exec web python manage.py createsuperuser
 
 # 7. Collect static files (already done in Dockerfile, but verify)
-docker-compose exec web python manage.py collectstatic --noinput
+docker compose exec web python manage.py collectstatic --noinput
 
 # 8. Verify services
-docker-compose ps
-docker-compose logs web
+docker compose ps
+docker compose logs web
 
 # 9. Access application
 # https://yourdomain.com
@@ -563,7 +566,7 @@ BACKUP_FILE="coursehub_db_$DATE.sql.gz"
 mkdir -p $BACKUP_DIR
 
 # Backup database
-docker-compose exec -T db pg_dump \
+docker compose exec -T db pg_dump \
     -U ${DB_USER:-coursehub_user} \
     ${DB_NAME:-coursehub_db} | gzip > $BACKUP_DIR/$BACKUP_FILE
 
@@ -583,7 +586,7 @@ echo "Backup completed: $BACKUP_FILE"
 ```bash
 # Restore from backup
 gunzip < /backups/postgresql/coursehub_db_20251210_020000.sql.gz | \
-docker-compose exec -T db psql -U coursehub_user coursehub_db
+docker compose exec -T db psql -U coursehub_user coursehub_db
 ```
 
 ### 5.5 Monitoring & Logging
@@ -591,13 +594,13 @@ docker-compose exec -T db psql -U coursehub_user coursehub_db
 **Docker Logs**:
 ```bash
 # View all logs
-docker-compose logs -f
+docker compose logs -f
 
 # View specific service
-docker-compose logs -f web
+docker compose logs -f web
 
 # View last 100 lines
-docker-compose logs --tail=100 web
+docker compose logs --tail=100 web
 ```
 
 **Log Rotation**:
@@ -617,7 +620,7 @@ docker-compose logs --tail=100 web
 **Health Checks**:
 ```bash
 # Check container health
-docker-compose ps
+docker compose ps
 
 # Check web service health
 curl -f http://localhost:8000/courses/ || echo "Service unhealthy"
@@ -636,19 +639,19 @@ curl -f http://localhost:8000/courses/ || echo "Service unhealthy"
 **Solution**:
 ```bash
 # Check database container is running
-docker-compose ps db
+docker compose ps db
 
 # Check database logs
-docker-compose logs db
+docker compose logs db
 
 # Verify environment variables
-docker-compose exec web env | grep DB_
+docker compose exec web env | grep DB_
 
 # Restart database
-docker-compose restart db
+docker compose restart db
 
 # Test connection
-docker-compose exec db psql -U coursehub_user -d coursehub_db -c "SELECT 1;"
+docker compose exec db psql -U coursehub_user -d coursehub_db -c "SELECT 1;"
 ```
 
 #### Static Files Not Loading
@@ -658,16 +661,16 @@ docker-compose exec db psql -U coursehub_user -d coursehub_db -c "SELECT 1;"
 **Solution**:
 ```bash
 # Rebuild with static files
-docker-compose exec web python manage.py collectstatic --noinput
+docker compose exec web python manage.py collectstatic --noinput
 
 # Check static volume
 docker volume inspect coursehub-django_static_volume
 
 # Verify nginx configuration
-docker-compose exec nginx nginx -t
+docker compose exec nginx nginx -t
 
 # Restart nginx
-docker-compose restart nginx
+docker compose restart nginx
 ```
 
 #### Permission Errors
@@ -677,10 +680,10 @@ docker-compose restart nginx
 **Solution**:
 ```bash
 # Fix ownership
-docker-compose exec web chown -R appuser:appuser /app
+docker compose exec web chown -R appuser:appuser /app
 
 # Check user
-docker-compose exec web whoami
+docker compose exec web whoami
 ```
 
 #### Out of Memory
@@ -692,7 +695,7 @@ docker-compose exec web whoami
 # Check resource usage
 docker stats
 
-# Increase memory limit in docker-compose.yml
+# Increase memory limit in docker compose.yml
 services:
   web:
     mem_limit: 2g
@@ -730,28 +733,28 @@ DATABASES = {
 DEBUG=True
 
 # Restart
-docker-compose -f docker-compose.dev.yml up -d
+docker compose -f docker compose.dev.yml up -d
 ```
 
 **Access Container Shell**:
 ```bash
 # Django container
-docker-compose exec web bash
+docker compose exec web bash
 
 # Database container
-docker-compose exec db sh
+docker compose exec db sh
 
 # Nginx container
-docker-compose exec nginx sh
+docker compose exec nginx sh
 ```
 
 **Database Access**:
 ```bash
 # PostgreSQL shell
-docker-compose exec db psql -U coursehub_user -d coursehub_db
+docker compose exec db psql -U coursehub_user -d coursehub_db
 
 # Run SQL query
-docker-compose exec db psql -U coursehub_user -d coursehub_db -c "SELECT * FROM courses_course LIMIT 5;"
+docker compose exec db psql -U coursehub_user -d coursehub_db -c "SELECT * FROM courses_course LIMIT 5;"
 ```
 
 ---
@@ -760,7 +763,7 @@ docker-compose exec db psql -U coursehub_user -d coursehub_db -c "SELECT * FROM 
 
 ### 7.1 Redis for Caching (Optional)
 
-**Add to docker-compose.yml**:
+**Add to docker compose.yml**:
 
 ```yaml
 services:
@@ -794,7 +797,7 @@ SESSION_CACHE_ALIAS = 'default'
 
 ### 7.2 Celery for Background Tasks (Optional)
 
-**Add to docker-compose.yml**:
+**Add to docker compose.yml**:
 
 ```yaml
 services:
@@ -859,10 +862,10 @@ jobs:
           script: |
             cd /path/to/coursehub-django
             git pull origin main
-            docker-compose down
-            docker-compose up -d --build
-            docker-compose exec -T web python manage.py migrate
-            docker-compose exec -T web python manage.py collectstatic --noinput
+            docker compose down
+            docker compose up -d --build
+            docker compose exec -T web python manage.py migrate
+            docker compose exec -T web python manage.py collectstatic --noinput
 ```
 
 ---
