@@ -60,3 +60,15 @@ class OTPVerificationTest(TestCase):
         obj, sent = services.start_verification_event(self.email)
         self.assertIsNone(obj)
         self.assertFalse(sent)
+
+    def test_multiple_valid_otps(self):
+        obj1, _ = services.start_verification_event(self.email)
+        obj2, _ = services.start_verification_event(self.email) # This might fail if rate limit is tight, but we assume limit > 2
+        
+        success, msg, email_obj = services.verify_otp(self.email, obj1.otp)
+        self.assertTrue(success)
+        
+        obj1.refresh_from_db()
+        obj2.refresh_from_db()
+        self.assertTrue(obj1.expired)
+        self.assertTrue(obj2.expired)

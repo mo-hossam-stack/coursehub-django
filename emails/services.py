@@ -3,6 +3,7 @@ import string
 from django.utils import timezone
 from .models import Email, EmailVerificationEvent
 from django.conf import settings
+from django.db.models import Q
 from django.core.mail import send_mail
 EMAILL_HOST_USER = settings.EMAIL_HOST_USER
 from django.template.loader import render_to_string
@@ -95,37 +96,48 @@ def verify_token(token,max_attempts=5):
     return True , "Welcome!" , email_obj
 
 def verify_otp(email, otp, max_attempts=5):
-    qs = EmailVerificationEvent.objects.filter(email=email).order_by('-timestamp')
-    if not qs.exists():
-         return False, "No verification found", None
-
-    verification_event = qs.first() 
+    qs = EmailVerificationEvent.objects.filter(
+        email=email, 
+        otp=otp, 
+        expired=False
+    )
     
-    if verification_event.expired:
+    # Filter out those that have exceeded max attempts (though they should be expired theoretically)
+    valid_events = qs.filter(attempts__lt=max_attempts)
+    
+    if valid_events.exists():
+        # SUCCESS
+        # Use the most recent valid one
+        event = valid_events.order_by('-timestamp').first()
+        
+        EmailVerificationEvent.objects.filter(email=email).update(expired=True, expired_at=timezone.now())
+        
+        email_obj = event.parent
+        return True, "Welcome!", email_obj
+    
+    expired_match = EmailVerificationEvent.objects.filter(email=email, otp=otp).filter(
+        Q(expired=True) | Q(attempts__gte=max_attempts)
+    )
+    if expired_match.exists():
         return False, "Code expired", None
 
-    if verification_event.attempts >= max_attempts:
-         # Ensure it is marked expired if not already
-         if not verification_event.expired:
-             verification_event.expired = True
-             verification_event.save()
-         return False, "Max attempts reached", None
-
-    if verification_event.otp != otp:
-        verification_event.attempts += 1
-        verification_event.last_attempt_at = timezone.now()
-        if verification_event.attempts >= max_attempts:
-             verification_event.expired = True
-             verification_event.expired_at = timezone.now()
-        verification_event.save()
-        return False, "Invalid code", None
-
-    verification_event.attempts += 1
-    verification_event.last_attempt_at = timezone.now()
-    # Expire it so it can't be used again
-    verification_event.expired = True
-    verification_event.expired_at = timezone.now()
-    verification_event.save()
+    active_events = EmailVerificationEvent.objects.filter(email=email, expired=False).order_by('-timestamp')
     
-    email_obj = verification_event.parent
-    return True, "Welcome!", email_obj
+    if not active_events.exists():
+        recent_expired = EmailVerificationEvent.objects.filter(email=email, expired=True).order_by('-timestamp').first()
+        if recent_expired:
+            return False, "Code expired", None
+        return False, "No active verification found", None
+        
+    latest_event = active_events.first()
+    latest_event.attempts += 1
+    latest_event.last_attempt_at = timezone.now()
+    
+    msg = "Invalid code"
+    if latest_event.attempts >= max_attempts:
+        latest_event.expired = True
+        latest_event.expired_at = timezone.now()
+        msg = "Max attempts reached" # Or "Code expired"
+        
+    latest_event.save()
+    return False, msg, None
