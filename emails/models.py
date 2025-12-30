@@ -15,6 +15,7 @@ class EmailVerificationEvent(models.Model):
     email = models.EmailField() # for better user interface in the future
     #  token
     token = models.UUIDField(default=uuid.uuid1)
+    otp = models.CharField(max_length=6, blank=True, null=True)
     attempts = models.IntegerField(default=0)
     last_attempt_at = models.DateTimeField(
         auto_now=False,
