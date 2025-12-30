@@ -13,12 +13,13 @@ Complete reference of all implemented features, endpoints, models, services, and
 |---------|--------|-------------|
 | Course Management | ✅ Complete | Create, publish, and manage courses with thumbnails |
 | Lesson Management | ✅ Complete | Video lessons with thumbnails, ordering, and status control |
-| Email Verification | ✅ Complete | Passwordless authentication via email tokens |
+| Email Verification | ✅ Complete | Passwordless authentication via email tokens & 6-digit OTP |
 | Access Control | ✅ Complete | Public vs email-required content |
 | Video Streaming | ✅ Complete | Cloudinary-powered adaptive video streaming |
 | HTMX Integration | ✅ Complete | Dynamic partial page updates without full reloads |
 | Responsive UI | ✅ Complete | TailwindCSS + Flowbite + DaisyUI components |
 | Admin Panel | ✅ Complete | Custom admin with inline lesson editing and media previews |
+| Security | ✅ Complete | Rate limiting, OTP invalidation, and secure session management |
 
 ### 1.2 Feature Timeline (from Git History)
 
@@ -80,6 +81,8 @@ Complete reference of all implemented features, endpoints, models, services, and
 | Method | URL Pattern | View Function | Description |
 |--------|-------------|---------------|-------------|
 | POST | `/hx/login/` | `email_token_login_view` | Submit email for verification (HTMX) |
+| POST | `/hx/verify-otp/` | `content_views.verify_otp_view` | Verify 6-digit OTP code |
+| POST | `/hx/resend-otp/` | `content_views.resend_otp_view` | Resend verification code (with rate limit) |
 | POST | `/hx/logout/` | `logout_btn_hx_view` | Clear session and logout (HTMX) |
 
 ### 2.4 Admin Endpoints
@@ -214,6 +217,8 @@ Complete reference of all implemented features, endpoints, models, services, and
 | `start_verification_event(email)` | `email: str` | tuple[EmailVerificationEvent, bool] | Create verification event and send email |
 | `send_verification_email(verify_obj_id)` | `verify_obj_id: int` | bool | Send verification email via SMTP |
 | `verify_token(token, max_attempts)` | `token: UUID`<br>`max_attempts: int = 5` | tuple[bool, str, Email \| None] | Validate token and return result |
+| `verify_otp(email, otp)` | `email: str`<br>`otp: str` | tuple[bool, str, Email \| None] | Validate 6-digit OTP |
+| `check_rate_limit(email)` | `email: str` | bool | Check if email sending limit exceeded |
 
 **Token Validation Logic**:
 1. Check token exists

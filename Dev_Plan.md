@@ -134,9 +134,33 @@ Structured development roadmap with implemented features, missing features, refa
 - `0f9e447`: Video frame as lesson thumbnail
 - `cc5d228`: Remove hero section icons
 
+
 ---
 
-## Phase 5: Missing Features & Future Enhancements
+## Phase 5: OTP & Security Enhancements ✅ COMPLETE
+
+**Timeline**: Dec 29-30, 2025  
+**Status**: ✅ Fully Implemented
+
+### Implemented Features
+
+- [x] 6-digit OTP generation and verification
+- [x] Rate limiting (backend)
+- [x] Resend cooldown timer (frontend)
+- [x] Multiple valid OTP support
+- [x] Secure OTP invalidation on success
+- [x] Improved HTML email templates
+- [x] HTMX logic for OTP input UI
+
+### Key Commits
+
+- `Implemented 6-digit input component`
+- `Added rate limiting logic`
+- `Refined verification service`
+
+---
+
+## Phase 6: Missing Features & Future Enhancements
 
 ### 5.1 User Accounts (Not Implemented)
 
@@ -351,7 +375,7 @@ class Course(models.Model):
 
 ---
 
-## Phase 6: Refactors & Technical Debt
+## Phase 7: Refactors & Technical Debt
 
 ### 6.1 Code Quality Improvements
 
@@ -409,23 +433,22 @@ class Course(models.Model):
 
 ---
 
-### 6.3 Security Hardening
+### 7.3 Security Hardening
 
 **Priority**: High  
 **Effort**: Low
 
 #### Security Improvements
 
-- [ ] **Rate Limiting**:
-  - Limit email verification requests (django-ratelimit)
-  - Limit login attempts
+- [x] **Rate Limiting**:
+  - Limit email verification requests (django-ratelimit custom implementation)
+  - Limit login attempts (disabled button)
   
-- [ ] **Token Expiration**:
-  - Add time-based expiration to email tokens (currently only attempt-based)
+- [x] **Token Expiration**:
+  - Add time-based expiration to email tokens (implemented in Services)
   ```python
   # emails/services.py
-  def verify_token(token, max_attempts=5, expiry_hours=24):
-      # Check if token created_at > expiry_hours
+  # check_rate_limit() and expired check added
   ```
 
 - [ ] **CSRF Exemption Audit**:

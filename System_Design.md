@@ -227,15 +227,18 @@ User submits email → EmailForm validation
 ├─────────────────────────────────────────────────────────────┤
 │ 1. User submits email via EmailForm                        │
 │ 2. Email model: stores unique emails (active/inactive)     │
-│ 3. EmailVerificationEvent: generates UUID token            │
-│ 4. Token sent via email (SMTP)                             │
-│ 5. User clicks link: /verify-email/<uuid>/                 │
-│ 6. Token validated:                                         │
-│    • Check expired flag                                     │
+│ 3. EmailVerificationEvent: generates UUID token & 6-digit OTP
+│ 4. Token & OTP sent via email (SMTP)                       │
+│ 5. User choice:                                             │
+│    a) Click link: /verify-email/<uuid>/                     │
+│    b) Enter 6-digit OTP manually                           │
+│ 6. Validation:                                              │
+│    • Check expired flag (and rate limits)                   │
 │    • Check attempts < max_attempts (5)                      │
 │    • Update attempts counter                                │
 │ 7. On success:                                              │
 │    • Set session['email_id'] = email_obj.id                │
+│    • Invalidate ALL active codes for this user             │
 │    • Redirect to next_url (or /)                           │
 │ 8. Session persists until logout or expiry                 │
 └─────────────────────────────────────────────────────────────┘

@@ -20,6 +20,7 @@ A modern, production-ready **course management platform** built with **Django 5.
 
 ### 🔐 Authentication
 - **Passwordless Email Auth**: UUID-based email verification tokens
+- **Secure OTP**: 6-digit verification codes for manual entry
 - **Session Management**: Secure session-based access control
 - **Email Verification**: SMTP integration with Gmail
 - **Access Gates**: Redirect users to email verification when required
@@ -265,8 +266,10 @@ python -c "import secrets; print(secrets.token_urlsafe(50))"
 1. User visits course/lesson requiring email
 2. Email form appears (HTMX)
 3. User submits email
-4. Verification email sent with UUID token
-5. User clicks verification link
+4. Verification email sent with UUID token and 6-digit OTP
+5. User can:
+   - Click verification link
+   - Enter 6-digit code manually in the new input UI
 6. Session enriched with email ID
 7. User redirected to requested content
 
