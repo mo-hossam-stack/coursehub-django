@@ -1,17 +1,139 @@
 {% if show_form %}
-    {% if message != "" %}
-    {{ message }}
-    {% else %}
-    <form class="space-y-4" hx-post="/hx/login/" method="POST" action="."> 
-        {% csrf_token %}
-        {{ form }}
-        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Login</button>
-    </form>
+{% if otp_form %}
+<div class="space-y-4 fade-in" id="otp-container">
+    {% if message %}
+    <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+        {{ message }}
+    </div>
     {% endif %}
+
+    <form class="space-y-4" hx-post="/hx/verify-otp/" hx-swap="outerHTML" method="POST" action="." id="otp-form">
+        {% csrf_token %}
+        <!-- Hidden Input for Email -->
+        <input type="hidden" name="email" value="{{ otp_form.email.value }}" id="otp-email">
+        <!-- Hidden Input for Full OTP -->
+        <input type="hidden" name="otp" id="hidden-otp">
+
+        <div class="flex flex-col space-y-2">
+            <label class="text-sm font-medium text-gray-900 dark:text-white">Enter the 6-digit code sent to your
+                email</label>
+            <div class="flex space-x-2 justify-between" id="otp-inputs">
+                {% for i in "123456"|make_list %}
+                <input type="text" maxlength="1"
+                    class="w-12 h-12 text-center text-xl font-bold border rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                    data-index="{{ forloop.counter0 }}" inputmode="numeric" pattern="[0-9]*"
+                    autocomplete="one-time-code" required>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+            <div id="resend-container">
+                <button type="button" hx-post="/hx/resend-otp/" hx-vals='{"email": "{{ otp_form.email.value }}"}'
+                    hx-target="#resend-msg"
+                    class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    id="resend-btn" onclick="startResendTimer(this)">
+                    Resend Code
+                </button>
+                <span id="resend-msg" class="ml-2"></span>
+            </div>
+            <a href="/login/"
+                class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white">Back to
+                Login</a>
+        </div>
+
+        <button type="submit"
+            class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+            id="verify-btn">Verify Code</button>
+    </form>
+</div>
+
+<script>
+    (function () {
+        const inputs = document.querySelectorAll('#otp-inputs input');
+        const hiddenOtp = document.getElementById('hidden-otp');
+        const form = document.getElementById('otp-form');
+
+        function updateHiddenInput() {
+            let otp = '';
+            inputs.forEach(input => otp += input.value);
+            hiddenOtp.value = otp;
+            if (otp.length === 6) {
+                // Optional: auto-submit
+                htmx.trigger(form, 'submit');
+            }
+        }
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (!/^\d*$/.test(val)) {
+                    e.target.value = '';
+                    return;
+                }
+                if (val.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+                updateHiddenInput();
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = e.clipboardData.getData('text').slice(0, 6).split('');
+                if (pasteData.length === 0) return;
+
+                inputs.forEach((inp, i) => {
+                    if (pasteData[i]) {
+                        inp.value = pasteData[i];
+                    }
+                });
+                updateHiddenInput();
+                // Focus last filled
+                const lastIndex = Math.min(pasteData.length, inputs.length) - 1;
+                inputs[lastIndex].focus();
+            });
+        });
+        // Timer Logic
+        window.startResendTimer = function (btn) {
+            btn.disabled = true;
+            let timeLeft = 60;
+            const originalText = btn.innerText;
+
+            const timer = setInterval(() => {
+                btn.innerText = `Resend in ${timeLeft}s`;
+                timeLeft--;
+
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }, 1000);
+        };
+    })();
+</script>
+{% elif message != "" %}
+<div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+    {{ message }}
+</div>
+{% else %}
+<form class="space-y-4" hx-post="/hx/login/" method="POST" action=".">
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Login</button>
+</form>
+{% endif %}
 {% else %}
 <div hx-get="/hx/logout/" hx-trigger="revealed"></div>
 {% endif %}
 
 {% comment %}
-    Note: This template is used in emails/views.py to render the login form via HTMX.
+Note: This template is used in emails/views.py to render the login form via HTMX.
 {% endcomment %}
