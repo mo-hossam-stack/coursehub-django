@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from . import services
 from django.contrib import messages
 # use messaging framework later
-from .forms import EmailForm
+from .forms import EmailForm, OTPForm
 from django.conf import settings
 EMAIL_ADDRESS = settings.EMAIL_ADDRESS
 from django_htmx.http import HttpResponseClientRedirect
@@ -34,14 +34,73 @@ def email_token_login_view(request):
     }
     if form.is_valid():
         email_val = form.cleaned_data.get('email')
-        obj = services.start_verification_event(email_val)
+        obj, sent = services.start_verification_event(email_val)
+        if not obj:
+             context['message'] = "Too many attempts. Please try again later."
+             return render(request, template_name, context)
+
         context['form'] = EmailForm()
         context['message'] = f"Succcess! Check your email for verification from {EMAIL_ADDRESS}"
+        context['otp_form'] = OTPForm(initial={'email': email_val}) # Pass email to OTP form
         # return HttpResponseClientRedirect('/check-your-email')
         return render(request, template_name, context)
     else:
         print(form.errors) 
     return render(request, template_name, context)
+
+
+def verify_otp_view(request):
+    if not request.htmx:
+         return redirect("/")
+    
+    form = OTPForm(request.POST or None)
+    template_name = "emails/hx/form.html"
+    
+    if form.is_valid():
+        email = form.cleaned_data.get('email')
+        otp = form.cleaned_data.get('otp')
+        
+        verified, msg, email_obj = services.verify_otp(email, otp)
+        
+        if verified:
+            request.session['email_id'] = f"{email_obj.id}"
+            messages.success(request, msg)
+            
+            next_url = request.session.get('next_url') or "/"
+            if not next_url.startswith("/"):
+                next_url = "/"
+            return HttpResponseClientRedirect(next_url)
+        else:
+            # Return form with error
+            context = {
+                "message": msg,
+                "otp_form": form, # Return bound form with errors/input
+                "show_form": False # Keep email form hidden, show OTP part (logic in template)
+            }
+            return render(request, template_name, context)
+            
+    # If form invalid (e.g. missing fields)
+    context = {
+        "message": "Invalid input",
+        "otp_form": form,
+        "show_form": False
+    }
+    return render(request, template_name, context)
+
+def resend_otp_view(request):
+    if not request.htmx:
+         return redirect("/")
+    
+    email = request.POST.get('email')
+    if not email:
+        return HttpResponse("Email required", status=400)
+    
+    obj, sent = services.start_verification_event(email)
+    
+    if not obj:
+        return HttpResponse("<div class='text-red-500 text-sm'>Rate limit reached. Try again later.</div>")
+    
+    return HttpResponse("<div class='text-green-500 text-sm'>New code sent!</div>")
 
 def verify_email_token_view(request, token, *args, **kwargs):
     did_verify, msg, email_obj = services.verify_token(token)
