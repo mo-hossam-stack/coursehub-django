@@ -8,6 +8,9 @@ A modern, production-ready **course management platform** built with **Django 5.
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4-38bdf8.svg)](https://tailwindcss.com)
 
 ---
+## 📣 Check Out My LinkedIn Post
+
+[🔹 View Video demo on LinkedIn](https://www.linkedin.com/posts/mohamed-hossam-dev_backend-systemdesign-django-activity-7406460049235222528-tMwU?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFjEZA8B-prD-yP6Bz7y8xP7CBtDVirxijw)
 
 ## ✨ Features
 
