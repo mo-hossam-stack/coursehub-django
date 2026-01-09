@@ -184,6 +184,7 @@ For detailed Docker setup instructions, see [`Docker_Setup.md`](Docker_Setup.md)
 ```
 coursehub-django/
 ├── courses/              # Course and Lesson models, views, services
+├── docs/                 # Documentation files
 ├── emails/               # Email verification system
 ├── helpers/              # Cloudinary integration utilities
 ├── home/                 # Django project settings and root URLs
