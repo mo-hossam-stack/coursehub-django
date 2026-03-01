@@ -1,0 +1,17 @@
+[project]
+name = "coursehub-django"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "cloudinary>=1.44.1",
+    "django>=5.1,<5.2",
+    "django-htmx>=1.27.0",
+    "django-tailwind[reload]>=4.4.2",
+    "gunicorn>=25.1.0",
+    "pillow>=12.1.1",
+    "psycopg2-binary>=2.9.11",
+    "python-decouple>=3.8",
+    "whitenoise>=6.6.0",
+]
